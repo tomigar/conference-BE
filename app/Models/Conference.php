@@ -45,4 +45,14 @@ class Conference extends Model
     {
         return $query->where('is_active', true);
     }
+
+    /**
+     * Get the editors assigned to this conference
+     */
+    public function editors()
+    {
+        return $this->belongsToMany(User::class)
+            ->where('role', User::ROLE_EDITOR)
+            ->withTimestamps();
+    }
 }
