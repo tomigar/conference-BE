@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\API\BaseController;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
-class UserController extends Controller
+class UserController extends BaseController
 {
     /**
      * Display a listing of the users.
@@ -29,10 +29,7 @@ class UserController extends Controller
 
         $users = $query->orderBy('name')->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => UserResource::collection($users)
-        ]);
+        return $this->sendResponse(UserResource::collection($users));
     }
 
     /**
@@ -54,11 +51,11 @@ class UserController extends Controller
 
         $user = User::create($validated);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'User created successfully',
-            'data' => new UserResource($user)
-        ], 201);
+        return $this->sendResponse(
+            new UserResource($user),
+            'User created successfully',
+            201
+        );
     }
 
     /**
@@ -69,10 +66,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return response()->json([
-            'success' => true,
-            'data' => new UserResource($user)
-        ]);
+        return $this->sendResponse(new UserResource($user));
     }
 
     /**
@@ -97,11 +91,10 @@ class UserController extends Controller
 
         $user->update($validated);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'User updated successfully',
-            'data' => new UserResource($user)
-        ]);
+        return $this->sendResponse(
+            new UserResource($user),
+            'User updated successfully'
+        );
     }
 
     /**
@@ -114,9 +107,6 @@ class UserController extends Controller
     {
         $user->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'User deleted successfully'
-        ]);
+        return $this->sendResponse(null, 'User deleted successfully');
     }
 }

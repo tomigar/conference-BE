@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\API\BaseController;
 use App\Http\Resources\ConferenceResource;
 use App\Models\Conference;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-class ConferenceController extends Controller
+class ConferenceController extends BaseController
 {
     /**
      * Display a listing of the conferences.
@@ -17,10 +18,7 @@ class ConferenceController extends Controller
     public function index()
     {
         $conferences = Conference::with('editors')->orderBy('year', 'desc')->get();
-        return response()->json([
-            'success' => true,
-            'data' => ConferenceResource::collection($conferences)
-        ]);
+        return $this->sendResponse(ConferenceResource::collection($conferences));
     }
 
     /**
@@ -43,11 +41,11 @@ class ConferenceController extends Controller
 
         $conference = Conference::create($validated);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Conference created successfully',
-            'data' => new ConferenceResource($conference)
-        ], 201);
+        return $this->sendResponse(
+            new ConferenceResource($conference),
+            'Conference created successfully',
+            201
+        );
     }
 
     /**
@@ -59,10 +57,7 @@ class ConferenceController extends Controller
     public function show(Conference $conference)
     {
         $conference->load('editors');
-        return response()->json([
-            'success' => true,
-            'data' => new ConferenceResource($conference)
-        ]);
+        return $this->sendResponse(new ConferenceResource($conference));
     }
 
     /**
@@ -86,11 +81,10 @@ class ConferenceController extends Controller
 
         $conference->update($validated);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Conference updated successfully',
-            'data' => new ConferenceResource($conference)
-        ]);
+        return $this->sendResponse(
+            new ConferenceResource($conference),
+            'Conference updated successfully'
+        );
     }
 
     /**
@@ -103,9 +97,6 @@ class ConferenceController extends Controller
     {
         $conference->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Conference deleted successfully'
-        ]);
+        return $this->sendResponse(null, 'Conference deleted successfully');
     }
 }

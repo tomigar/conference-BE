@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\API\BaseController;
 use App\Http\Resources\UserResource;
 use App\Models\Conference;
 use App\Models\User;
 use Illuminate\Http\Request;
 
-class ConferenceEditorController extends Controller
+class ConferenceEditorController extends BaseController
 {
     /**
      * Get editors for a specific conference.
@@ -19,10 +20,7 @@ class ConferenceEditorController extends Controller
     {
         $editors = $conference->editors()->orderBy('name')->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => UserResource::collection($editors)
-        ]);
+        return $this->sendResponse(UserResource::collection($editors));
     }
 
     /**
@@ -40,10 +38,7 @@ class ConferenceEditorController extends Controller
             ->orderBy('name')
             ->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => UserResource::collection($availableEditors)
-        ]);
+        return $this->sendResponse(UserResource::collection($availableEditors));
     }
 
     /**
@@ -62,28 +57,22 @@ class ConferenceEditorController extends Controller
         // Check if the user is an editor
         $editor = User::findOrFail($validated['editor_id']);
         if ($editor->role !== User::ROLE_EDITOR) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Only editors can be assigned to conferences.'
-            ], 422);
+            return $this->sendError('Only editors can be assigned to conferences.');
         }
 
         // Check if the editor is already assigned
         if ($conference->editors()->where('user_id', $editor->id)->exists()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'This editor is already assigned to this conference.'
-            ], 422);
+            return $this->sendError('This editor is already assigned to this conference.');
         }
 
         // Assign the editor to the conference
         $conference->editors()->attach($editor->id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Editor assigned to conference successfully.',
-            'data' => new UserResource($editor)
-        ], 201);
+        return $this->sendResponse(
+            new UserResource($editor),
+            'Editor assigned to conference successfully.',
+            201
+        );
     }
 
     /**
@@ -97,17 +86,11 @@ class ConferenceEditorController extends Controller
     {
         // Check if the editor is actually assigned to this conference
         if (!$conference->editors()->where('user_id', $editor->id)->exists()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'This editor is not assigned to this conference.'
-            ], 422);
+            return $this->sendError('This editor is not assigned to this conference.');
         }
 
         $conference->editors()->detach($editor->id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Editor removed from conference successfully.'
-        ]);
+        return $this->sendResponse(null, 'Editor removed from conference successfully.');
     }
 }
