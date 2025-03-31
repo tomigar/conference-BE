@@ -4,9 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\API\BaseController;
 use App\Http\Resources\UserResource;
-use App\Models\Conference;
-use App\Models\User;
-use Illuminate\Http\Request;
 
 class ConferenceEditorController extends BaseController
 {

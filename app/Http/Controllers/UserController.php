@@ -4,11 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\API\BaseController;
 use App\Http\Resources\UserResource;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
+
 
 class UserController extends BaseController
 {
@@ -37,6 +33,7 @@ class UserController extends BaseController
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
+
      */
     public function store(Request $request)
     {
@@ -99,6 +96,7 @@ class UserController extends BaseController
 
     /**
      * Remove the specified user from storage.
+
      *
      * @param  \App\Models\User  $user
      * @return \Illuminate\Http\JsonResponse
