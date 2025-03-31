@@ -2,36 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
+use App\Http\Controllers\API\BaseController;
+use App\Http\Resources\UserResource;
 
-class UserController extends Controller
+
+class UserController extends BaseController
 {
     /**
      * Display a listing of the users.
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(Request $request)
     {
-        $editors = User::where('role', User::ROLE_EDITOR)->orderBy('name')->get();
-        $admins = User::where('role', User::ROLE_ADMIN)->orderBy('name')->get();
+        $role = $request->query('role');
 
-        return view('users.index', compact('editors', 'admins'));
-    }
+        $query = User::query();
 
-    /**
-     * Show the form for creating a new user.
-     */
-    public function create(Request $request)
-    {
-        $role = $request->query('role', User::ROLE_EDITOR);
-        return view('users.create', compact('role'));
+        if ($role) {
+            $query->where('role', $role);
+        }
+
+        $users = $query->orderBy('name')->get();
+
+        return $this->sendResponse(UserResource::collection($users));
     }
 
     /**
      * Store a newly created user in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+
      */
     public function store(Request $request)
     {
@@ -44,24 +46,65 @@ class UserController extends Controller
 
         $validated['password'] = Hash::make($validated['password']);
 
-        User::create($validated);
+        $user = User::create($validated);
 
-        $roleType = $validated['role'] === User::ROLE_ADMIN ? 'administrator' : 'editor';
+        return $this->sendResponse(
+            new UserResource($user),
+            'User created successfully',
+            201
+        );
+    }
 
-        return redirect()->route('users.index')
-            ->with('success', "New {$roleType} added successfully.");
+    /**
+     * Display the specified user.
+     *
+     * @param  \App\Models\User  $user
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show(User $user)
+    {
+        return $this->sendResponse(new UserResource($user));
+    }
+
+    /**
+     * Update the specified user in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\User  $user
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'name' => ['sometimes', 'required', 'string', 'max:255'],
+            'email' => ['sometimes', 'required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'password' => ['sometimes', 'required', Password::defaults()],
+            'role' => ['sometimes', 'required', Rule::in([User::ROLE_ADMIN, User::ROLE_EDITOR])],
+        ]);
+
+        if (isset($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
+        }
+
+        $user->update($validated);
+
+        return $this->sendResponse(
+            new UserResource($user),
+            'User updated successfully'
+        );
     }
 
     /**
      * Remove the specified user from storage.
+
+     *
+     * @param  \App\Models\User  $user
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(User $user)
     {
-        $roleType = $user->role === User::ROLE_ADMIN ? 'administrator' : 'editor';
-
         $user->delete();
 
-        return redirect()->route('users.index')
-            ->with('success', "{$roleType} removed successfully.");
+        return $this->sendResponse(null, 'User deleted successfully');
     }
 }
