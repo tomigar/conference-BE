@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\API\BaseController;
 use App\Http\Resources\ConferenceResource;
+use App\Models\Conference;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ConferenceController extends BaseController
 {
