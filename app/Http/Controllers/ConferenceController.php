@@ -2,31 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\API\BaseController;
+use App\Http\Resources\ConferenceResource;
 use App\Models\Conference;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-class ConferenceController extends Controller
+class ConferenceController extends BaseController
 {
     /**
      * Display a listing of the conferences.
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index()
     {
-        $conferences = Conference::orderBy('year', 'desc')->get();
-        return view('conferences.index', compact('conferences'));
-    }
-
-    /**
-     * Show the form for creating a new conference.
-     */
-    public function create()
-    {
-        return view('conferences.create');
+        $conferences = Conference::with('editors')->orderBy('year', 'desc')->get();
+        return $this->sendResponse(ConferenceResource::collection($conferences));
     }
 
     /**
      * Store a newly created conference in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
@@ -40,22 +39,33 @@ class ConferenceController extends Controller
             'is_active' => ['sometimes', 'boolean'],
         ]);
 
-        Conference::create($validated);
+        $conference = Conference::create($validated);
 
-        return redirect()->route('conferences.index')
-            ->with('success', 'Conference year added successfully.');
+        return $this->sendResponse(
+            new ConferenceResource($conference),
+            'Conference created successfully',
+            201
+        );
     }
 
     /**
-     * Show the form for editing the specified conference.
+     * Display the specified conference.
+     *
+     * @param  \App\Models\Conference  $conference
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Conference $conference)
+    public function show(Conference $conference)
     {
-        return view('conferences.edit', compact('conference'));
+        $conference->load('editors');
+        return $this->sendResponse(new ConferenceResource($conference));
     }
 
     /**
      * Update the specified conference in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Conference  $conference
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, Conference $conference)
     {
@@ -71,18 +81,22 @@ class ConferenceController extends Controller
 
         $conference->update($validated);
 
-        return redirect()->route('conferences.index')
-            ->with('success', 'Conference updated successfully.');
+        return $this->sendResponse(
+            new ConferenceResource($conference),
+            'Conference updated successfully'
+        );
     }
 
     /**
      * Remove the specified conference from storage.
+     *
+     * @param  \App\Models\Conference  $conference
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Conference $conference)
     {
         $conference->delete();
 
-        return redirect()->route('conferences.index')
-            ->with('success', 'Conference year deleted successfully.');
+        return $this->sendResponse(null, 'Conference deleted successfully');
     }
 }
