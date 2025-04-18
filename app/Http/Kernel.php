@@ -1,3 +1,5 @@
+<?php
+
 use App\Http\Middleware\CheckRole;
 
 class Kernel extends HttpKernel
@@ -11,5 +13,11 @@ class Kernel extends HttpKernel
      */
     protected $middlewareAliases = [
         'role' => \App\Http\Middleware\CheckRole::class,
+        'api' => [
+    \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+    'throttle:api',
+    \Illuminate\Routing\Middleware\SubstituteBindings::class,
+],
+
     ];
 }

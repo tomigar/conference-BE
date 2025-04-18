@@ -41,13 +41,23 @@ class PageController extends BaseController
     /**
      * Zobrazenie jednej podstránky.
      */
-    public function show(Conference $conference, Page $page)
+    public function show(Page $page)
     {
-        if ($page->conference_id !== $conference->id) {
-            return $this->sendError('Podstránka nepatrí do tejto konferencie.', 403);
+        return $this->sendResponse($page, 'Podstránka načítaná.');
+    }
+
+    /**
+     * Získanie podstránky podľa slug.
+     */
+    public function getBySlug(string $slug)
+    {
+        $page = Page::where('slug', $slug)->first();
+
+        if (!$page) {
+            return response()->json(['message' => 'Page not found.'], 404);
         }
 
-        return $this->sendResponse($page, 'Podstránka načítaná.');
+        return response()->json(['data' => $page]);
     }
 
     /**
