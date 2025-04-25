@@ -21,6 +21,7 @@ Route::get('/conferences/{conference}', [ConferenceController::class, 'show']);
 Route::get('/pages/{page}', [PageController::class, 'show']);
 Route::get('/pages/slug/{slug}', [PageController::class, 'getBySlug']);
 Route::get('conferences/{conference}/pages', [PageController::class, 'index']);
+Route::post('/uploads/image', [UploadController::class, 'uploadImage']);
 
 
 // Admin-only routes
