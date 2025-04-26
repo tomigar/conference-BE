@@ -47,6 +47,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('conferences/{conference}/editors/{editor}', [ConferenceEditorController::class, 'removeEditor']);
 });
 
+use App\Http\Controllers\PageController;
+
+Route::middleware(['auth:sanctum', 'role:admin,editor'])->group(function () {
+    Route::get('conferences/{conference}/pages', [PageController::class, 'index']);
+    Route::post('conferences/{conference}/pages', [PageController::class, 'store']);
+    Route::get('conferences/{conference}/pages/{page}', [PageController::class, 'show']);
+    Route::put('conferences/{conference}/pages/{page}', [PageController::class, 'update']);
+    Route::delete('conferences/{conference}/pages/{page}', [PageController::class, 'destroy']);
+});
+
+
 // I change it to secure one
 //Route::get('/user', function (Request $request) {
 //    return $request->user();
