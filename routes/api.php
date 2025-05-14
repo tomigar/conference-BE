@@ -33,9 +33,7 @@ Route::middleware(['auth:sanctum', 'role:admin,editor'])->group(function () {
     Route::delete('conferences/{conference}/editors/{editor}', [ConferenceEditorController::class, 'removeEditor']);
 
     Route::prefix('conferences/{conference}')->group(function () {
-        Route::get('pages', [PageController::class, 'index']);
         Route::post('pages', [PageController::class, 'store']);
-        Route::get('pages/{page}', [PageController::class, 'show']);
         Route::put('pages/{page}', [PageController::class, 'update']);
         Route::delete('pages/{page}', [PageController::class, 'destroy']);
     });
@@ -51,7 +49,17 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     // Logout
     Route::post('/logout', [AuthController::class, 'logout']);
+
     // User management routes
     Route::apiResource('users', UserController::class)->except(['store', 'destroy']);
 });
+
+
+Route::get('/conferences', [ConferenceController::class, 'index']);
+// Verejne prístupné čítanie konferencie a jej stránok
+Route::get('/conferences/{conference}', [ConferenceController::class, 'show']);
+Route::get('/conferences/{conference}/pages', [App\Http\Controllers\PageController::class, 'index']);
+Route::get('/conferences/{conference}/pages/{page}', [App\Http\Controllers\PageController::class, 'show']);
+
+Route::get('/pages/{page}', [App\Http\Controllers\PageController::class, 'show']);
 
