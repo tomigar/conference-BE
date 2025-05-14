@@ -38,7 +38,7 @@ Route::middleware(['auth:sanctum', 'role:admin,editor'])->group(function () {
         Route::get('pages/{page}', [PageController::class, 'show']);
         Route::put('pages/{page}', [PageController::class, 'update']);
         Route::delete('pages/{page}', [PageController::class, 'destroy']);
-});
+    });
     // File upload routes
     Route::post('/upload', [FileController::class, 'store']);
     Route::get('/files/{id}', [FileController::class, 'show'])->name('files.show');
