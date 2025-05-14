@@ -56,8 +56,7 @@ class Conference extends Model
             ->withTimestamps();
     }
     public function pages()
-{
-    return $this->hasMany(Page::class);
-}
-
+    {
+      return $this->hasMany(Page::class);
+    }
 }

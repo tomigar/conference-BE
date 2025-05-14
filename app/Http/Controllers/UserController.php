@@ -82,7 +82,7 @@ class UserController extends BaseController
         $validated = $request->validate([
             'name' => ['sometimes', 'required', 'string', 'max:255'],
             'email' => ['sometimes', 'required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'password' => ['sometimes', 'required', Password::defaults()],
+            // 'password' => ['sometimes', 'required', Password::defaults()],
             'role' => ['sometimes', 'required', Rule::in([User::ROLE_ADMIN, User::ROLE_EDITOR])],
         ]);
 

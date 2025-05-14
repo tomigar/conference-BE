@@ -5,6 +5,7 @@ use App\Http\Controllers\ConferenceController;
 use App\Http\Controllers\ConferenceEditorController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\PageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,12 +16,28 @@ Route::controller(AuthController::class)->group(function(){
 });
 
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::post('/users', [UserController::class, 'store']);
+    Route::delete('/users/{user}', [UserController::class, 'destroy']);
 
     //add routes that are restricted to admin
 });
 
 Route::middleware(['auth:sanctum', 'role:admin,editor'])->group(function () {
     //add routes that are restricted to admin and editor
+    // Conference routes
+    Route::apiResource('conferences', ConferenceController::class);
+
+    Route::get('conferences/{conference}/editors', [ConferenceEditorController::class, 'getEditors']);
+    Route::get('conferences/{conference}/available-editors', [ConferenceEditorController::class, 'getAvailableEditors']);
+    Route::post('conferences/{conference}/editors', [ConferenceEditorController::class, 'assignEditor']);
+    Route::delete('conferences/{conference}/editors/{editor}', [ConferenceEditorController::class, 'removeEditor']);
+
+    Route::prefix('conferences/{conference}')->group(function () {
+        Route::post('pages', [PageController::class, 'store']);
+        Route::put('pages/{page}', [PageController::class, 'update']);
+        Route::delete('pages/{page}', [PageController::class, 'destroy']);
+    });
+    // File upload routes
     Route::post('/upload', [FileController::class, 'store']);
     Route::get('/files/{id}', [FileController::class, 'show'])->name('files.show');
 });
@@ -30,36 +47,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-
     // Logout
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // Conference routes
-    Route::get('conferences', [ConferenceController::class, 'index']);
-    Route::post('conferences', [ConferenceController::class, 'store']);
-    Route::get('conferences/{conference}', [ConferenceController::class, 'show']);
-    Route::put('conferences/{conference}', [ConferenceController::class, 'update']);
-    Route::delete('conferences/{conference}', [ConferenceController::class, 'destroy']);
-
     // User management routes
-    Route::apiResource('users', UserController::class);
-
-    // Conference editors routes
-    Route::get('conferences/{conference}/editors', [ConferenceEditorController::class, 'getEditors']);
-    Route::get('conferences/{conference}/available-editors', [ConferenceEditorController::class, 'getAvailableEditors']);
-    Route::post('conferences/{conference}/editors', [ConferenceEditorController::class, 'assignEditor']);
-    Route::delete('conferences/{conference}/editors/{editor}', [ConferenceEditorController::class, 'removeEditor']);
+    Route::apiResource('users', UserController::class)->except(['store', 'destroy']);
 });
 
-use App\Http\Controllers\PageController;
-
-Route::middleware(['auth:sanctum', 'role:admin,editor'])->group(function () {
-    Route::get('conferences/{conference}/pages', [PageController::class, 'index']);
-    Route::post('conferences/{conference}/pages', [PageController::class, 'store']);
-    Route::get('conferences/{conference}/pages/{page}', [PageController::class, 'show']);
-    Route::put('conferences/{conference}/pages/{page}', [PageController::class, 'update']);
-    Route::delete('conferences/{conference}/pages/{page}', [PageController::class, 'destroy']);
-});
 
 Route::get('/conferences', [ConferenceController::class, 'index']);
 // Verejne prístupné čítanie konferencie a jej stránok
