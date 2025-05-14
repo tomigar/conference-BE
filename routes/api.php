@@ -21,6 +21,14 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
 Route::middleware(['auth:sanctum', 'role:admin,editor'])->group(function () {
     //add routes that are restricted to admin and editor
+    // Conference routes
+    Route::apiResource('conferences', ConferenceController::class);
+
+    Route::get('conferences/{conference}/editors', [ConferenceEditorController::class, 'getEditors']);
+    Route::get('conferences/{conference}/available-editors', [ConferenceEditorController::class, 'getAvailableEditors']);
+    Route::post('conferences/{conference}/editors', [ConferenceEditorController::class, 'assignEditor']);
+    Route::delete('conferences/{conference}/editors/{editor}', [ConferenceEditorController::class, 'removeEditor']);
+    // File upload routes
     Route::post('/upload', [FileController::class, 'store']);
     Route::get('/files/{id}', [FileController::class, 'show'])->name('files.show');
 });
@@ -30,35 +38,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-
     // Logout
     Route::post('/logout', [AuthController::class, 'logout']);
-
-    // Conference routes
-    Route::apiResource('conferences', ConferenceController::class);
-
     // User management routes
     Route::apiResource('users', UserController::class);
-
-    // Conference editors routes
-    Route::get('conferences/{conference}/editors', [ConferenceEditorController::class, 'getEditors']);
-    Route::get('conferences/{conference}/available-editors', [ConferenceEditorController::class, 'getAvailableEditors']);
-    Route::post('conferences/{conference}/editors', [ConferenceEditorController::class, 'assignEditor']);
-    Route::delete('conferences/{conference}/editors/{editor}', [ConferenceEditorController::class, 'removeEditor']);
 });
 
-use App\Http\Controllers\PageController;
-
-Route::middleware(['auth:sanctum', 'role:admin,editor'])->group(function () {
-    Route::get('conferences/{conference}/pages', [PageController::class, 'index']);
-    Route::post('conferences/{conference}/pages', [PageController::class, 'store']);
-    Route::get('conferences/{conference}/pages/{page}', [PageController::class, 'show']);
-    Route::put('conferences/{conference}/pages/{page}', [PageController::class, 'update']);
-    Route::delete('conferences/{conference}/pages/{page}', [PageController::class, 'destroy']);
-});
-
-
-// I change it to secure one
-//Route::get('/user', function (Request $request) {
-//    return $request->user();
-//});
