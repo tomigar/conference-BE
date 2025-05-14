@@ -35,7 +35,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // Conference routes
-    Route::apiResource('conferences', ConferenceController::class);
+    Route::get('conferences', [ConferenceController::class, 'index']);
+    Route::post('conferences', [ConferenceController::class, 'store']);
+    Route::get('conferences/{conference}', [ConferenceController::class, 'show']);
+    Route::put('conferences/{conference}', [ConferenceController::class, 'update']);
+    Route::delete('conferences/{conference}', [ConferenceController::class, 'destroy']);
 
     // User management routes
     Route::apiResource('users', UserController::class);
@@ -57,8 +61,11 @@ Route::middleware(['auth:sanctum', 'role:admin,editor'])->group(function () {
     Route::delete('conferences/{conference}/pages/{page}', [PageController::class, 'destroy']);
 });
 
+Route::get('/conferences', [ConferenceController::class, 'index']);
+// Verejne prístupné čítanie konferencie a jej stránok
+Route::get('/conferences/{conference}', [ConferenceController::class, 'show']);
+Route::get('/conferences/{conference}/pages', [App\Http\Controllers\PageController::class, 'index']);
+Route::get('/conferences/{conference}/pages/{page}', [App\Http\Controllers\PageController::class, 'show']);
 
-// I change it to secure one
-//Route::get('/user', function (Request $request) {
-//    return $request->user();
-//});
+Route::get('/pages/{page}', [App\Http\Controllers\PageController::class, 'show']);
+
