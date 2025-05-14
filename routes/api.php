@@ -5,6 +5,7 @@ use App\Http\Controllers\ConferenceController;
 use App\Http\Controllers\ConferenceEditorController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\PageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,6 +16,8 @@ Route::controller(AuthController::class)->group(function(){
 });
 
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::post('/users', [UserController::class, 'store']);
+    Route::delete('/users/{user}', [UserController::class, 'destroy']);
 
     //add routes that are restricted to admin
 });
@@ -28,6 +31,14 @@ Route::middleware(['auth:sanctum', 'role:admin,editor'])->group(function () {
     Route::get('conferences/{conference}/available-editors', [ConferenceEditorController::class, 'getAvailableEditors']);
     Route::post('conferences/{conference}/editors', [ConferenceEditorController::class, 'assignEditor']);
     Route::delete('conferences/{conference}/editors/{editor}', [ConferenceEditorController::class, 'removeEditor']);
+
+    Route::prefix('conferences/{conference}')->group(function () {
+        Route::get('pages', [PageController::class, 'index']);
+        Route::post('pages', [PageController::class, 'store']);
+        Route::get('pages/{page}', [PageController::class, 'show']);
+        Route::put('pages/{page}', [PageController::class, 'update']);
+        Route::delete('pages/{page}', [PageController::class, 'destroy']);
+});
     // File upload routes
     Route::post('/upload', [FileController::class, 'store']);
     Route::get('/files/{id}', [FileController::class, 'show'])->name('files.show');
@@ -41,6 +52,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Logout
     Route::post('/logout', [AuthController::class, 'logout']);
     // User management routes
-    Route::apiResource('users', UserController::class);
+    Route::apiResource('users', UserController::class)->except(['store', 'destroy']);
 });
 

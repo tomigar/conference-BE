@@ -55,4 +55,9 @@ class Conference extends Model
             ->where('role', User::ROLE_EDITOR)
             ->withTimestamps();
     }
+
+    public function pages()
+    {
+        return $this->hasMany(Page::class);
+    }
 }
