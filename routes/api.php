@@ -40,6 +40,10 @@ Route::middleware(['auth:sanctum', 'role:admin,editor'])->group(function () {
     // File upload routes
     Route::post('/upload', [FileController::class, 'store']);
     Route::get('/files/{id}', [FileController::class, 'show'])->name('files.show');
+    Route::post('/files', [FileController::class, 'store']);
+    Route::get('/pages/{page}/files', [FileController::class, 'getByPage']);
+
+
 });
 
 Route::middleware('auth:sanctum')->group(function () {

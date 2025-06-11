@@ -13,21 +13,22 @@ class FileController extends BaseController
     public function store(Request $request)
     {
         $request->validate([
-            'file' => 'required|file',
+            'file' => 'required|file|mimes:pdf,doc,docx,png,jpg,jpeg|max:10240'
         ]);
         
         $file = $request->file('file');
         
         $fileName = time() . '_' . $file->getClientOriginalName();
         
-        $path = $file->storeAs('uploads', $fileName);
+        $path = $file->storeAs('uploads', $fileName, 'public');
         
-        $fileObject =[
-            'name' => $file->getClientOriginalName() ,
-            'path' => $path,
-            'mime_type' => $file->getMimeType(),
-            'size' => $file->getSize()
-        ];
+        $fileObject = [
+        'name' => $file->getClientOriginalName(),
+        'path' => $path,
+        'mime_type' => $file->getMimeType(),
+        'size' => $file->getSize(),
+        'url' => asset('storage/' . $path)
+    ];
         File::create($fileObject);
 
 
@@ -44,4 +45,14 @@ class FileController extends BaseController
         $file = File::findOrFail($id);
         return Storage::download($file->path, $file->original_name);
     }
+
+    public function getByPage($pageId)
+{
+    $files = \App\Models\File::where('page_id', $pageId)->get();
+
+    return response()->json([
+        'data' => $files,
+    ]);
+}
+
 }
