@@ -66,4 +66,5 @@ Route::get('/conferences/{conference}/pages', [App\Http\Controllers\PageControll
 Route::get('/conferences/{conference}/pages/{page}', [App\Http\Controllers\PageController::class, 'show']);
 
 Route::get('/pages/{page}', [App\Http\Controllers\PageController::class, 'show']);
+Route::get('/pages/{page}/files', [FileController::class, 'getByPage']);
 

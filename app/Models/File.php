@@ -7,9 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class File extends Model
 {
     protected $fillable = [
-        'name',
-        'path',
-        'mime_type',
-        'size'
-    ];
+    'name',
+    'path',
+    'mime_type',
+    'size',
+    'url',
+    'page_id'
+];
+
 }
+
+

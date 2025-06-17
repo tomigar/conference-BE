@@ -12,32 +12,36 @@ class FileController extends BaseController
 {
     public function store(Request $request)
     {
+      
+        try {
         $request->validate([
-            'file' => 'required|file|mimes:pdf,doc,docx,png,jpg,jpeg|max:10240'
+            'file'     => 'required|file|mimes:pdf,doc,docx,png,jpg,jpeg|max:10240',
+            'page_id'  => 'required|integer|exists:pages,id',
         ]);
-        
+
         $file = $request->file('file');
-        
         $fileName = time() . '_' . $file->getClientOriginalName();
-        
         $path = $file->storeAs('uploads', $fileName, 'public');
-        
-        $fileObject = [
-        'name' => $file->getClientOriginalName(),
-        'path' => $path,
-        'mime_type' => $file->getMimeType(),
-        'size' => $file->getSize(),
-        'url' => asset('storage/' . $path)
-    ];
-        File::create($fileObject);
 
+        $fileData = [
+            'name' => $file->getClientOriginalName(),
+            'path' => $path,
+            'mime_type' => $file->getMimeType(),
+            'size' => $file->getSize(),
+            'url' => asset('storage/' . $path),
+            'page_id' => $request->input('page_id'),
+        ];
 
-        
-        return $this->sendResponse(
-            $fileObject,
-            'File uploaded successfully',
-            201
-        );
+        $file = File::create($fileData);
+
+        return response()->json($fileData, 201);
+    } catch (\Exception $e) {
+        \Log::error('File upload failed: ' . $e->getMessage());
+        return response()->json([
+            'message' => 'Upload failed',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
     }
     
     public function show($id)
